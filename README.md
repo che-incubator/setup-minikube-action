@@ -33,3 +33,7 @@ jobs:
 ```
 
 Development version is available with `@next`. At each commit in main branch, a new development release is pushed to `next` branch.
+
+# Trademark
+
+"Che" is a trademark of the Eclipse Foundation.
