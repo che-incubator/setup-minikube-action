@@ -1,0 +1,10 @@
+name: 'Setup Minikube'
+description: 'Install and start minikube and Eclipse Che on Github Runner'
+runs:
+  using: 'node12'
+  main: 'lib/index.js'
+  post: 'lib/index.js'
+inputs:
+  minikube-version:
+    description: 'Version of minikube to install. Default is the one installed on ubuntu runner.'
+    required: false
