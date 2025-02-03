@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2021 Red Hat, Inc.
+ * Copyright (c) 2021-2025 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -104,5 +104,24 @@ describe('Test Main with stubs', () => {
     expect(mockedConsoleError).toBeCalled();
     expect(returnCode).toBeFalsy();
     expect(launchMinikubeExecuteMethod).toBeCalledTimes(0);
+  });
+
+  test('handle not instance of Error', async () => {
+    class DummyNonError {}
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {
+      // empty for tests
+    });
+    jest.spyOn(InversifyBinding.prototype, 'initBindings').mockImplementation(() => {
+      throw new DummyNonError();
+    });
+
+    const main = new Main();
+    const returnCode = await main.start();
+
+    expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Unable to start', expect.any(DummyNonError));
+    expect(returnCode).toBe(false);
+
+    consoleErrorSpy.mockRestore();
   });
 });
