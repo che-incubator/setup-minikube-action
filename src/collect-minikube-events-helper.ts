@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2021 Red Hat, Inc.
+ * Copyright (c) 2021-2025 Red Hat, Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -7,12 +7,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
-import * as artifact from '@actions/artifact';
+
 import * as core from '@actions/core';
 import * as execa from 'execa';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
+import artifact, { UploadArtifactOptions } from '@actions/artifact';
 import { inject, injectable } from 'inversify';
 
 import { Configuration } from './configuration';
@@ -33,7 +34,6 @@ export class CollectMinikubeEventsHelper {
     ]);
 
     // add log as artifact
-    const artifactClient = artifact.create();
     const artifactName = `kubectl events ${this.configuration.jobNameSuffix()}`;
 
     const kubectlEventLogPath = '/tmp/kubectl-events.log';
@@ -41,11 +41,12 @@ export class CollectMinikubeEventsHelper {
 
     const files = [kubectlEventLogPath];
     const rootDirectory = path.dirname(kubectlEventLogPath);
-    const options = {
-      continueOnError: true,
+    const options: UploadArtifactOptions = {
+      retentionDays: 1,
+      compressionLevel: 6,
     };
 
     // upload log
-    await artifactClient.uploadArtifact(artifactName, files, rootDirectory, options);
+    await artifact.uploadArtifact(artifactName, files, rootDirectory, options);
   }
 }
