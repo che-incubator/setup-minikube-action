@@ -9,10 +9,11 @@
  ***********************************************************************/
 
 import * as core from '@actions/core';
-import * as execa from 'execa';
 import * as toolCache from '@actions/tool-cache';
 
 import { inject, injectable } from 'inversify';
+
+import { execFile } from './exec';
 
 import { Configuration } from './configuration';
 
@@ -50,10 +51,10 @@ export class MinikubeSetupHelper {
 
     // make it executable
     core.info('Make minikube executable');
-    await execa('sudo', ['-E', 'chmod', '755', minikubeDownloadPath]);
+    await execFile('sudo', ['-E', 'chmod', '755', minikubeDownloadPath]);
 
     // move minikube to a folder in path
-    await execa('sudo', ['-E', 'mv', minikubeDownloadPath, MinikubeSetupHelper.MINIKUBE_OWN_PATH]);
+    await execFile('sudo', ['-E', 'mv', minikubeDownloadPath, MinikubeSetupHelper.MINIKUBE_OWN_PATH]);
 
     core.info('Minikube installed at ' + MinikubeSetupHelper.MINIKUBE_OWN_PATH);
   }

@@ -10,17 +10,20 @@
 import 'reflect-metadata';
 
 import * as core from '@actions/core';
-import * as execa from 'execa';
-import * as fs from 'fs-extra';
 
 import { CollectMinikubeEventsHelper } from '../src/collect-minikube-events-helper';
 import { Configuration } from '../src/configuration';
 import { Container } from 'inversify';
 import artifact from '@actions/artifact';
+import { execFile } from '../src/exec';
+import { writeFile } from 'node:fs/promises';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-jest.mock('execa');
+jest.mock('../src/exec');
+jest.mock('node:fs/promises', () => ({
+  writeFile: jest.fn().mockResolvedValue(undefined),
+}));
 
 describe('Test CollectMinikubeEventsHelper', () => {
   let container: Container;
@@ -51,27 +54,26 @@ describe('Test CollectMinikubeEventsHelper', () => {
       compressionLevel: 6,
     };
 
-    (execa as any).mockResolvedValue({ exitCode: 0, stdout });
+    (execFile as any).mockResolvedValue({ stdout, stderr: '' });
 
-    const fsWriteSpy = jest.spyOn(fs, 'writeFile');
+    (writeFile as any).mockResolvedValue(undefined);
     const uploadArtifactSpy = jest.spyOn(artifact, 'uploadArtifact').mockResolvedValue({} as any);
-    fsWriteSpy.mockReturnValue();
     jobNameSuffixMethod.mockReturnValue('suffix');
     await collectMinikubeEventsHelper.collect();
     // core.info
     expect(core.info).toBeCalled();
     expect((core.info as any).mock.calls[0][0]).toContain('Capturing kubectl events');
 
-    expect((execa as any).mock.calls[0][0]).toBe('kubectl');
-    expect((execa as any).mock.calls[0][1][0]).toBe('get');
-    expect((execa as any).mock.calls[0][1][1]).toBe('events');
+    expect((execFile as any).mock.calls[0][0]).toBe('kubectl');
+    expect((execFile as any).mock.calls[0][1][0]).toBe('get');
+    expect((execFile as any).mock.calls[0][1][1]).toBe('events');
 
-    expect(fsWriteSpy).toBeCalledWith('/tmp/kubectl-events.log', stdout, 'utf-8');
+    expect(writeFile).toBeCalledWith('/tmp/kubectl-events.log', stdout, 'utf-8');
     expect(uploadArtifactSpy).toHaveBeenCalledWith(
       'kubectl events suffix',
       ['/tmp/kubectl-events.log'],
       '/tmp',
-      defaultOptions
+      defaultOptions,
     );
   });
 });

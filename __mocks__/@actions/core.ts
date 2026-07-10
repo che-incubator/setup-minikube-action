@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const core: any = jest.genMockFromModule('@actions/core');
+const core: any = jest.createMockFromModule('@actions/core');
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const inputs: Map<string, any> = new Map();
