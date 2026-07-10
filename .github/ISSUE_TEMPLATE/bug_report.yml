@@ -1,0 +1,62 @@
+name: Bug Report
+description: Report a bug with the Setup Minikube action
+labels: [bug]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear description of the bug.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Minimal workflow or steps to reproduce the issue.
+      placeholder: |
+        1. Use the action with these inputs...
+        2. Run the workflow...
+        3. See error...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+      description: What you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+      description: What actually happened. Include error messages or logs if available.
+    validations:
+      required: true
+
+  - type: input
+    id: runner-os
+    attributes:
+      label: Runner OS
+      description: The GitHub Actions runner image (e.g. ubuntu-24.04).
+      placeholder: ubuntu-24.04
+    validations:
+      required: true
+
+  - type: input
+    id: minikube-version
+    attributes:
+      label: Minikube version
+      description: The minikube-version input value, or "default" if not set.
+      placeholder: default
+
+  - type: input
+    id: action-version
+    attributes:
+      label: Action version
+      description: The action ref you are using (e.g. @next, @v1).
+      placeholder: "@next"

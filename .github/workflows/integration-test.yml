@@ -1,0 +1,40 @@
+name: integration-test
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'action.yml'
+      - 'package.json'
+      - 'tsconfig.json'
+      - '.github/workflows/integration-test.yml'
+
+jobs:
+  test-action:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --ignore-scripts
+
+      - name: Build
+        run: yarn compile && yarn run pack
+
+      - name: Run action
+        uses: ./
+
+      - name: Verify minikube is running
+        run: minikube status
+
+      - name: Verify kubectl can reach the cluster
+        run: kubectl get nodes
+
+      - name: Verify ingress addon is enabled
+        run: minikube addons list | sed 's/\x1b\[[0-9;]*m//g' | grep 'ingress ' | grep -q 'enabled'
