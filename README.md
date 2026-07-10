@@ -6,7 +6,7 @@ This Github action will start Minikube to be able to Install/Run Eclipse Che
 
 ## pre-requisites:
 
-- tested on ubuntu 20.04
+- tested on ubuntu 24.04
 
 ## why:
 
@@ -25,7 +25,7 @@ on: [push, pull_request]
 
 jobs:
   install:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Start minikube
         id: run-minikube
