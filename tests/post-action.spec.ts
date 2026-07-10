@@ -13,8 +13,6 @@ import { CollectMinikubeEventsHelper } from '../src/collect-minikube-events-help
 import { Container } from 'inversify';
 import { PostAction } from '../src/post-action';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 describe('Test PostAction', () => {
   let container: Container;
   let collectMinikubeEventsHelper: CollectMinikubeEventsHelper;
@@ -37,6 +35,6 @@ describe('Test PostAction', () => {
     const postAction = container.get(PostAction);
     await postAction.execute();
 
-    expect(collectMinikubeEventsHelper.collect).toBeCalled();
+    expect(collectMinikubeEventsHelper.collect).toHaveBeenCalled();
   });
 });

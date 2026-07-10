@@ -14,8 +14,6 @@ import { LaunchMinikube } from '../src/launch-minikube';
 import { MinikubeSetupHelper } from '../src/minikube-setup-helper';
 import { MinikubeStartHelper } from '../src/minikube-start-helper';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 describe('Test LaunchMinikube', () => {
   let container: Container;
   let minikubeStartHelper: MinikubeStartHelper;
@@ -43,8 +41,8 @@ describe('Test LaunchMinikube', () => {
   test('basic', async () => {
     const launchMinikube = container.get(LaunchMinikube);
     await launchMinikube.execute();
-    expect(minikubeSetupHelper.setup).toBeCalled();
+    expect(minikubeSetupHelper.setup).toHaveBeenCalled();
 
-    expect(minikubeStartHelper.start).toBeCalled();
+    expect(minikubeStartHelper.start).toHaveBeenCalled();
   });
 });

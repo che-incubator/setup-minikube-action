@@ -18,8 +18,6 @@ import artifact from '@actions/artifact';
 import { execFile } from '../src/exec';
 import { writeFile } from 'node:fs/promises';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 jest.mock('../src/exec');
 jest.mock('node:fs/promises', () => ({
   writeFile: jest.fn().mockResolvedValue(undefined),
@@ -61,14 +59,14 @@ describe('Test CollectMinikubeEventsHelper', () => {
     jobNameSuffixMethod.mockReturnValue('suffix');
     await collectMinikubeEventsHelper.collect();
     // core.info
-    expect(core.info).toBeCalled();
+    expect(core.info).toHaveBeenCalled();
     expect((core.info as any).mock.calls[0][0]).toContain('Capturing kubectl events');
 
     expect((execFile as any).mock.calls[0][0]).toBe('kubectl');
     expect((execFile as any).mock.calls[0][1][0]).toBe('get');
     expect((execFile as any).mock.calls[0][1][1]).toBe('events');
 
-    expect(writeFile).toBeCalledWith('/tmp/kubectl-events.log', stdout, 'utf-8');
+    expect(writeFile).toHaveBeenCalledWith('/tmp/kubectl-events.log', stdout, 'utf-8');
     expect(uploadArtifactSpy).toHaveBeenCalledWith(
       'kubectl events suffix',
       ['/tmp/kubectl-events.log'],

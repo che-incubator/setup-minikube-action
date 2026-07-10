@@ -15,8 +15,6 @@ import { Container } from 'inversify';
 import { InversifyBinding } from '../src/inversify-binding';
 import { Main } from '../src/main';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 describe('Test Main with stubs', () => {
   const originalConsoleError = console.error;
   const mockedConsoleError = jest.fn();
@@ -47,9 +45,9 @@ describe('Test Main with stubs', () => {
   test('basic', async () => {
     const main = new Main();
     const returnCode = await main.start();
-    expect(mockedConsoleError).toBeCalledTimes(0);
+    expect(mockedConsoleError).toHaveBeenCalledTimes(0);
     expect(returnCode).toBeTruthy();
-    expect(launchMinikubeExecuteMethod).toBeCalled();
+    expect(launchMinikubeExecuteMethod).toHaveBeenCalled();
   });
 
   test('basic post', async () => {
@@ -57,9 +55,9 @@ describe('Test Main with stubs', () => {
     const isPostActionSpy = jest.spyOn(main, 'isPostAction');
     isPostActionSpy.mockReturnValue(true);
     const returnCode = await main.start();
-    expect(mockedConsoleError).toBeCalledTimes(0);
+    expect(mockedConsoleError).toHaveBeenCalledTimes(0);
     expect(returnCode).toBeTruthy();
-    expect(launchMinikubeExecuteMethod).toBeCalled();
+    expect(launchMinikubeExecuteMethod).toHaveBeenCalled();
   });
 
   test('default configuration', async () => {
@@ -101,9 +99,9 @@ describe('Test Main with stubs', () => {
     });
     const main = new Main();
     const returnCode = await main.start();
-    expect(mockedConsoleError).toBeCalled();
+    expect(mockedConsoleError).toHaveBeenCalled();
     expect(returnCode).toBeFalsy();
-    expect(launchMinikubeExecuteMethod).toBeCalledTimes(0);
+    expect(launchMinikubeExecuteMethod).toHaveBeenCalledTimes(0);
   });
 
   test('handle not instance of Error', async () => {
