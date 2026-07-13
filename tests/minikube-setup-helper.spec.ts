@@ -10,16 +10,16 @@
 import 'reflect-metadata';
 
 import * as core from '@actions/core';
-import * as execa from 'execa';
 import * as toolCache from '@actions/tool-cache';
 
 import { Configuration } from '../src/configuration';
 import { Container } from 'inversify';
 import { MinikubeSetupHelper } from '../src/minikube-setup-helper';
+import { execFile } from '../src/exec';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-jest.mock('execa');
+jest.mock('../src/exec');
 
 describe('Test MinikubeStartHelper', () => {
   let container: Container;
@@ -47,11 +47,11 @@ describe('Test MinikubeStartHelper', () => {
     // core.info
     expect(core.info).toBeCalledTimes(1);
     expect((core.info as any).mock.calls[0][0]).toContain('use pre-installed minikube version');
-    expect(execa as any).toBeCalledTimes(0);
+    expect(execFile).toBeCalledTimes(0);
   });
 
   test('start custom minikube', async () => {
-    (execa as any).mockResolvedValue({ exitCode: 0, stdout: undefined });
+    (execFile as any).mockResolvedValue({ stdout: '', stderr: '' });
     const customMinikubeVersion = '1.2.3-custom-minikube';
     minikubeVersionMethod.mockReturnValue(customMinikubeVersion);
 
@@ -65,18 +65,18 @@ describe('Test MinikubeStartHelper', () => {
 
     expect(downloadToolSpy).toBeCalled();
     expect(downloadToolSpy.mock.calls[0][0]).toBe(
-      'https://github.com/kubernetes/minikube/releases/download/1.2.3-custom-minikube/minikube-linux-amd64'
+      'https://github.com/kubernetes/minikube/releases/download/1.2.3-custom-minikube/minikube-linux-amd64',
     );
 
-    expect(execa).toBeCalledTimes(2);
-    expect((execa as any).mock.calls[0][0]).toBe('sudo');
-    expect((execa as any).mock.calls[0][1][0]).toBe('-E');
-    expect((execa as any).mock.calls[0][1][1]).toBe('chmod');
-    expect((execa as any).mock.calls[0][1][2]).toBe('755');
-    expect((execa as any).mock.calls[0][1][3]).toBe(fakeDownloadedPath);
+    expect(execFile).toBeCalledTimes(2);
+    expect((execFile as any).mock.calls[0][0]).toBe('sudo');
+    expect((execFile as any).mock.calls[0][1][0]).toBe('-E');
+    expect((execFile as any).mock.calls[0][1][1]).toBe('chmod');
+    expect((execFile as any).mock.calls[0][1][2]).toBe('755');
+    expect((execFile as any).mock.calls[0][1][3]).toBe(fakeDownloadedPath);
 
-    expect((execa as any).mock.calls[1][0]).toBe('sudo');
-    expect((execa as any).mock.calls[1][1][0]).toBe('-E');
-    expect((execa as any).mock.calls[1][1][1]).toBe('mv');
+    expect((execFile as any).mock.calls[1][0]).toBe('sudo');
+    expect((execFile as any).mock.calls[1][1][0]).toBe('-E');
+    expect((execFile as any).mock.calls[1][1][1]).toBe('mv');
   });
 });

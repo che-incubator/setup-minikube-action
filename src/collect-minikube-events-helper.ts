@@ -9,11 +9,13 @@
  ***********************************************************************/
 
 import * as core from '@actions/core';
-import * as execa from 'execa';
-import * as fs from 'fs-extra';
-import * as path from 'path';
+import * as path from 'node:path';
 
 import artifact, { UploadArtifactOptions } from '@actions/artifact';
+
+import { writeFile } from 'node:fs/promises';
+
+import { execFile } from './exec';
 import { inject, injectable } from 'inversify';
 
 import { Configuration } from './configuration';
@@ -26,7 +28,7 @@ export class CollectMinikubeEventsHelper {
   async collect(): Promise<void> {
     // get events
     core.info('Capturing kubectl events');
-    const { stdout } = await execa('kubectl', [
+    const { stdout } = await execFile('kubectl', [
       'get',
       'events',
       '--all-namespaces',
@@ -37,7 +39,7 @@ export class CollectMinikubeEventsHelper {
     const artifactName = `kubectl events ${this.configuration.jobNameSuffix()}`;
 
     const kubectlEventLogPath = '/tmp/kubectl-events.log';
-    await fs.writeFile(kubectlEventLogPath, stdout, 'utf-8');
+    await writeFile(kubectlEventLogPath, stdout, 'utf-8');
 
     const files = [kubectlEventLogPath];
     const rootDirectory = path.dirname(kubectlEventLogPath);

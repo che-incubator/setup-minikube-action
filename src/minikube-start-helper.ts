@@ -9,36 +9,40 @@
  ***********************************************************************/
 
 import * as core from '@actions/core';
-import * as execa from 'execa';
+
+import { spawn } from 'node:child_process';
 
 import { injectable } from 'inversify';
 
-/**
- * Launch minikube with all add-ons required by Eclipse Che (like ingress).
- * Try to use all memory available on Github Action Runners.
- */
 @injectable()
 export class MinikubeStartHelper {
   async start(): Promise<void> {
-    // use options to perform the chown to let users (not root) access minikube instance
-    const options: execa.Options = {
-      env: {
-        CHANGE_MINIKUBE_NONE_USER: 'true',
-        MINIKUBE_WANTUPDATENOTIFICATION: 'false',
-      },
+    const env = {
+      ...process.env,
+      CHANGE_MINIKUBE_NONE_USER: 'true',
+      MINIKUBE_WANTUPDATENOTIFICATION: 'false',
     };
     core.info('Starting minikube...');
-    const execaProcess = execa(
-      'minikube',
-      ['start', '--vm-driver=docker', '--addons=ingress', '--cpus', '2', '--memory', '6500'],
-      options
-    );
-    if (execaProcess.stdout) {
-      execaProcess.stdout.pipe(process.stdout);
-    }
-    if (execaProcess.stderr) {
-      execaProcess.stderr.pipe(process.stderr);
-    }
-    await execaProcess;
+    await new Promise<void>((resolve, reject) => {
+      const child = spawn(
+        'minikube',
+        ['start', '--vm-driver=docker', '--addons=ingress', '--cpus', '2', '--memory', '6500'],
+        { env, stdio: ['ignore', 'pipe', 'pipe'] },
+      );
+      if (child.stdout) {
+        child.stdout.pipe(process.stdout);
+      }
+      if (child.stderr) {
+        child.stderr.pipe(process.stderr);
+      }
+      child.on('close', code => {
+        if (code === 0) {
+          resolve();
+        } else {
+          reject(new Error(`minikube exited with code ${code}`));
+        }
+      });
+      child.on('error', reject);
+    });
   }
 }

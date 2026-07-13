@@ -8,8 +8,16 @@
  * SPDX-License-Identifier: EPL-2.0
  ***********************************************************************/
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { execFile as execFileCb } from 'node:child_process';
 
-const fs: any = jest.requireActual('fs-extra');
-
-module.exports = fs;
+export function execFile(command: string, args: string[]): Promise<{ stdout: string; stderr: string }> {
+  return new Promise((resolve, reject) => {
+    execFileCb(command, args, (error, stdout, stderr) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve({ stdout, stderr });
+      }
+    });
+  });
+}

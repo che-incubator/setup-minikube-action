@@ -10,14 +10,15 @@
 import 'reflect-metadata';
 
 import * as core from '@actions/core';
-import * as execa from 'execa';
 
+import { EventEmitter } from 'node:events';
 import { Container } from 'inversify';
 import { MinikubeStartHelper } from '../src/minikube-start-helper';
+import { spawn } from 'node:child_process';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-jest.mock('execa');
+jest.mock('node:child_process');
 
 describe('Test MinikubeStartHelper', () => {
   let container: Container;
@@ -36,40 +37,66 @@ describe('Test MinikubeStartHelper', () => {
   });
 
   test('start no stdout/stderr', async () => {
-    const stdout = 'dummy output of start minikube';
+    const child = new EventEmitter();
+    (child as any).stdout = undefined;
+    (child as any).stderr = undefined;
+    (spawn as any).mockReturnValue(child);
 
-    (execa as any).mockResolvedValue({ exitCode: 0, stdout });
+    const startPromise = minikubeStartHelper.start();
+    child.emit('close', 0);
+    await startPromise;
 
-    await minikubeStartHelper.start();
-    // core.info
     expect(core.info).toBeCalled();
     expect((core.info as any).mock.calls[0][0]).toContain('Starting minikube...');
 
-    expect((execa as any).mock.calls[0][0]).toBe('minikube');
-    expect((execa as any).mock.calls[0][1][0]).toBe('start');
+    expect((spawn as any).mock.calls[0][0]).toBe('minikube');
+    expect((spawn as any).mock.calls[0][1][0]).toBe('start');
   });
 
   test('start with stdout/stderr', async () => {
-    const output = { pipe: jest.fn() };
-    const err = { pipe: jest.fn() };
-    const stdOutAfterResolve = 'dummy output of start minikube';
+    const child = new EventEmitter();
+    const stdout = new EventEmitter();
+    (stdout as any).pipe = jest.fn();
+    const stderr = new EventEmitter();
+    (stderr as any).pipe = jest.fn();
+    (child as any).stdout = stdout;
+    (child as any).stderr = stderr;
+    (spawn as any).mockReturnValue(child);
 
-    const promise = new Promise((res: any) => {
-      res({ stdout: stdOutAfterResolve });
-    });
+    const startPromise = minikubeStartHelper.start();
+    child.emit('close', 0);
+    await startPromise;
 
-    (promise as any).exitCode = 0;
-    (promise as any).stdout = output;
-    (promise as any).stderr = err;
-
-    (execa as any).mockReturnValue(promise);
-
-    await minikubeStartHelper.start();
-    // core.info
     expect(core.info).toBeCalled();
     expect((core.info as any).mock.calls[0][0]).toContain('Starting minikube...');
 
-    expect((execa as any).mock.calls[0][0]).toBe('minikube');
-    expect((execa as any).mock.calls[0][1][0]).toBe('start');
+    expect((spawn as any).mock.calls[0][0]).toBe('minikube');
+    expect((spawn as any).mock.calls[0][1][0]).toBe('start');
+    expect((stdout as any).pipe).toHaveBeenCalledWith(process.stdout);
+    expect((stderr as any).pipe).toHaveBeenCalledWith(process.stderr);
+  });
+
+  test('start with non-zero exit code', async () => {
+    const child = new EventEmitter();
+    (child as any).stdout = undefined;
+    (child as any).stderr = undefined;
+    (spawn as any).mockReturnValue(child);
+
+    const startPromise = minikubeStartHelper.start();
+    child.emit('close', 1);
+
+    await expect(startPromise).rejects.toThrow('minikube exited with code 1');
+  });
+
+  test('start with spawn error', async () => {
+    const child = new EventEmitter();
+    (child as any).stdout = undefined;
+    (child as any).stderr = undefined;
+    (spawn as any).mockReturnValue(child);
+
+    const startPromise = minikubeStartHelper.start();
+    child.emit('error', new Error('spawn failed'));
+
+    await expect(startPromise).rejects.toThrow('spawn failed');
   });
 });
