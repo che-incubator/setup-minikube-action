@@ -1,10 +1,8 @@
-# Publish next version of the github action on each commit to master
-
 name: publish
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   publish:
@@ -15,17 +13,35 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
-      - name: build
-        run: |
-          yarn
-      - name: report-coverage
+          node-version-file: .nvmrc
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --ignore-scripts
+
+      - name: Check formatting
+        run: yarn format
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Compile
+        run: yarn compile
+
+      - name: Test
+        run: yarn test
+
+      - name: Bundle
+        run: yarn run pack
+
+      - name: Upload coverage
         uses: codecov/codecov-action@v5
         with:
           files: ./coverage/coverage-final.json
-      - name: publish
+
+      - name: Publish next
         run: |
           mkdir next
           cp -r lib next
@@ -38,4 +54,3 @@ jobs:
           git add ./*
           git commit -m "Publish next version $(date +'%Y-%m-%d')" -s
           git push -f "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/${{ github.repository }}.git" next
- 
