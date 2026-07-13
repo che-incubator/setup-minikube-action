@@ -1,7 +1,7 @@
 name: 'Setup Minikube'
 description: 'Install and start minikube and Eclipse Che on Github Runner'
 runs:
-  using: 'node12'
+  using: 'node24'
   main: 'lib/index.js'
   post: 'lib/index.js'
 inputs:

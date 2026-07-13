@@ -8,21 +8,23 @@ on:
 
 jobs:
   publish:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version: '18.15.0'
+          node-version: '22'
       - name: build
         run: |
           yarn
       - name: report-coverage
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v5
         with:
-          file: ./coverage/coverage-final.json
+          files: ./coverage/coverage-final.json
       - name: publish
         run: |
           mkdir next
@@ -35,5 +37,5 @@ jobs:
           git checkout --orphan next
           git add ./*
           git commit -m "Publish next version $(date +'%Y-%m-%d')" -s
-          git push -f "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/che-incubator/setup-minikube-action.git" next
+          git push -f "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/${{ github.repository }}.git" next
  
