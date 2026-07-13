@@ -11,8 +11,6 @@
 import { execFile as execFileCb } from 'node:child_process';
 import { execFile } from '../src/exec';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 jest.mock('node:child_process', () => ({
   execFile: jest.fn(),
 }));

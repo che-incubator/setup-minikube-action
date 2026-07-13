@@ -16,8 +16,6 @@ import { Container } from 'inversify';
 import { MinikubeStartHelper } from '../src/minikube-start-helper';
 import { spawn } from 'node:child_process';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 jest.mock('node:child_process');
 
 describe('Test MinikubeStartHelper', () => {
@@ -46,7 +44,7 @@ describe('Test MinikubeStartHelper', () => {
     child.emit('close', 0);
     await startPromise;
 
-    expect(core.info).toBeCalled();
+    expect(core.info).toHaveBeenCalled();
     expect((core.info as any).mock.calls[0][0]).toContain('Starting minikube...');
 
     expect((spawn as any).mock.calls[0][0]).toBe('minikube');
@@ -67,7 +65,7 @@ describe('Test MinikubeStartHelper', () => {
     child.emit('close', 0);
     await startPromise;
 
-    expect(core.info).toBeCalled();
+    expect(core.info).toHaveBeenCalled();
     expect((core.info as any).mock.calls[0][0]).toContain('Starting minikube...');
 
     expect((spawn as any).mock.calls[0][0]).toBe('minikube');

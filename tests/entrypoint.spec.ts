@@ -9,7 +9,6 @@
  ***********************************************************************/
 import 'reflect-metadata';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 const startMethodMock = jest.fn();
 
 jest.mock('../src/main', () => ({
@@ -36,8 +35,9 @@ describe('Test Entrypoint', () => {
 
   test('entrypoint', async () => {
     startMethodMock.mockResolvedValue(true);
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     await require('../src/entrypoint');
-    expect(startMethodMock).toBeCalled();
+    expect(startMethodMock).toHaveBeenCalled();
     expect(process.exitCode).toBeUndefined();
   });
 
@@ -45,9 +45,10 @@ describe('Test Entrypoint', () => {
     const spyExit = jest.spyOn(process, 'exit');
     const value: never = {} as never;
     spyExit.mockReturnValue(value);
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     await require('../src/entrypoint');
     startMethodMock.mockResolvedValue(false);
-    expect(spyExit).toBeCalled();
-    expect(startMethodMock).toBeCalled();
+    expect(spyExit).toHaveBeenCalled();
+    expect(startMethodMock).toHaveBeenCalled();
   });
 });

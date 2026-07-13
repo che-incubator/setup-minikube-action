@@ -16,8 +16,6 @@ import { LaunchMinikube } from '../src/launch-minikube';
 import { MinikubeSetupHelper } from '../src/minikube-setup-helper';
 import { MinikubeStartHelper } from '../src/minikube-start-helper';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 describe('Test InversifyBinding', () => {
   test('bindings', async () => {
     const minikubeVersion = '1.2.3';

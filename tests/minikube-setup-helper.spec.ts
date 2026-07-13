@@ -17,8 +17,6 @@ import { Container } from 'inversify';
 import { MinikubeSetupHelper } from '../src/minikube-setup-helper';
 import { execFile } from '../src/exec';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 jest.mock('../src/exec');
 
 describe('Test MinikubeStartHelper', () => {
@@ -45,9 +43,9 @@ describe('Test MinikubeStartHelper', () => {
   test('start default minikube', async () => {
     await minikubeSetupHelper.setup();
     // core.info
-    expect(core.info).toBeCalledTimes(1);
+    expect(core.info).toHaveBeenCalledTimes(1);
     expect((core.info as any).mock.calls[0][0]).toContain('use pre-installed minikube version');
-    expect(execFile).toBeCalledTimes(0);
+    expect(execFile).toHaveBeenCalledTimes(0);
   });
 
   test('start custom minikube', async () => {
@@ -60,15 +58,15 @@ describe('Test MinikubeStartHelper', () => {
     downloadToolSpy.mockResolvedValue(fakeDownloadedPath);
     await minikubeSetupHelper.setup();
     // core.info
-    expect(core.info).toBeCalled();
+    expect(core.info).toHaveBeenCalled();
     expect((core.info as any).mock.calls[0][0]).toContain(`Downloading minikube ${customMinikubeVersion}...`);
 
-    expect(downloadToolSpy).toBeCalled();
+    expect(downloadToolSpy).toHaveBeenCalled();
     expect(downloadToolSpy.mock.calls[0][0]).toBe(
       'https://github.com/kubernetes/minikube/releases/download/1.2.3-custom-minikube/minikube-linux-amd64',
     );
 
-    expect(execFile).toBeCalledTimes(2);
+    expect(execFile).toHaveBeenCalledTimes(2);
     expect((execFile as any).mock.calls[0][0]).toBe('sudo');
     expect((execFile as any).mock.calls[0][1][0]).toBe('-E');
     expect((execFile as any).mock.calls[0][1][1]).toBe('chmod');
